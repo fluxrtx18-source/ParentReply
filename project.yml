@@ -1,0 +1,77 @@
+name: ParentReply
+options:
+  bundleIdPrefix: com.huseyinataseven
+  deploymentTarget:
+    iOS: "26.0"
+  xcodeVersion: "16.3"
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
+  defaultConfig: Debug
+  groupSortPosition: top
+  transitivelyLinkDependencies: false
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    TARGETED_DEVICE_FAMILY: "1"
+    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: "RS8JSBN29A"
+
+schemes:
+  ParentReply:
+    build:
+      targets:
+        ParentReply: all
+        ParentReplyTests: [test]
+    run:
+      config: Debug
+      storeKitConfiguration: Configuration/StoreKit.storekit
+    test:
+      config: Debug
+      targets:
+        - ParentReplyTests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+
+targets:
+
+  # ── Main App ──────────────────────────────────────────────────────────────
+  ParentReply:
+    type: application
+    platform: iOS
+    deploymentTarget: "26.0"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.huseyinataseven.parentreply
+        INFOPLIST_FILE: ParentReply/App/Info.plist
+        LD_RUNPATH_SEARCH_PATHS: ["$(inherited)", "@executable_path/Frameworks"]
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_EMIT_LOC_STRINGS: YES
+        GENERATE_INFOPLIST_FILE: NO
+    sources:
+      - path: ParentReply
+        excludes:
+          - "**/*.md"
+    resources:
+      - path: Configuration/StoreKit.storekit
+
+  # ── Unit Tests ────────────────────────────────────────────────────────────
+  ParentReplyTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "26.0"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.huseyinataseven.parentreply.tests
+        GENERATE_INFOPLIST_FILE: YES
+    sources:
+      - path: ParentReplyTests
+    dependencies:
+      - target: ParentReply

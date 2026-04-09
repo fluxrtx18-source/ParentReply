@@ -1,0 +1,8 @@
+Welcome to ParentReply 1.0!
+
+- Screenshot any school message from email, ClassDojo, or Remind
+- Get 6 parent-appropriate replies in different tones (Grateful, Concerned, Supportive, Diplomatic, Firm, Clarifying)
+- AI recommends the best tone for each situation
+- Situation summary tells you what the school expects
+- 100% on-device AI — your messages never leave your phone
+- 5 free replies per week, no credit card needed

@@ -1,0 +1,24 @@
+ParentReply requires iOS 26 or later with Apple Intelligence enabled.
+
+The app uses Apple's on-device Foundation Models framework (FoundationModels) to generate reply suggestions and Vision framework for OCR text extraction from screenshots. Both run entirely on-device.
+
+TEST FLOW:
+1. Open the app — you will see the onboarding flow (7 screens)
+2. Complete onboarding or tap "Start free" on the paywall
+3. On the Home screen, tap "Choose Screenshot"
+4. Select any screenshot containing a school-related message (email, text, ClassDojo, etc.)
+5. The app extracts text via Vision OCR, then generates 6 reply options in different tones
+6. The "Grateful" tone is free; other tones and the situation summary require a Pro subscription
+7. Tap any unlocked reply card to copy the text (2-minute clipboard expiry)
+
+FREE TIER:
+- Grateful tone always available
+- 5 analyses per calendar week
+- Situation summary is blurred (teaser)
+
+PRO TIER:
+- All 6 tones unlocked
+- Unlimited analyses
+- Full situation summary visible
+
+No network requests are made. No user data leaves the device. No third-party SDKs are included.
