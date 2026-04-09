@@ -4,6 +4,7 @@ import SwiftUI
 struct CarouselStepView: View {
     var onContinue: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var currentPage = 0
     @State private var appeared = false
     @State private var userSwiped = false
@@ -63,12 +64,18 @@ struct CarouselStepView: View {
             }
         }
         .task {
-            appeared = true
-            while !Task.isCancelled {
-                try? await Task.sleep(for: autoAdvanceInterval)
-                guard !Task.isCancelled, !userSwiped else { break }
-                withAnimation(.easeInOut(duration: 0.4)) {
-                    currentPage = (currentPage + 1) % cards.count
+            if reduceMotion {
+                var transaction = Transaction(animation: nil)
+                transaction.disablesAnimations = true
+                withTransaction(transaction) { appeared = true }
+            } else {
+                appeared = true
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: autoAdvanceInterval)
+                    guard !Task.isCancelled, !userSwiped else { break }
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        currentPage = (currentPage + 1) % cards.count
+                    }
                 }
             }
         }

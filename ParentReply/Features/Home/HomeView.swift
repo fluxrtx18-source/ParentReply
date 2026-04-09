@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @Environment(UsageTracker.self)        private var usageTracker
     @Environment(SubscriptionManager.self) private var subscriptionManager
+    @Environment(\.scenePhase)             private var scenePhase
 
     @State private var selectedImage: IdentifiableImage?
     @State private var showPaywall = false
@@ -44,20 +45,11 @@ struct HomeView: View {
             .sheet(isPresented: $showPaywall) {
                 PaywallView()
             }
-            .onForeground {
+            .onChange(of: scenePhase) {
+                guard scenePhase == .active else { return }
                 usageTracker.refresh()
                 Task { await subscriptionManager.refresh() }
             }
-        }
-    }
-}
-
-// MARK: - Foreground detection helper
-
-private extension View {
-    func onForeground(perform action: @escaping () -> Void) -> some View {
-        onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-            action()
         }
     }
 }

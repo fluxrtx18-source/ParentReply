@@ -6,6 +6,7 @@ import SwiftUI
 struct AppDemoStepView: View {
     var onContinue: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: Phase = .reading
     @State private var visibleReplies = 0
     @State private var appeared = false
@@ -87,9 +88,31 @@ struct AppDemoStepView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: visibleReplies)
         .animation(.easeInOut(duration: 0.4), value: phase)
-        .onAppear {
-            appeared = true
-            startDemoSequence()
+        .task {
+            if reduceMotion {
+                var transaction = Transaction(animation: nil)
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    appeared = true
+                    phase = .repliesReady
+                    visibleReplies = replies.count
+                }
+            } else {
+                appeared = true
+                // Simulate "reading" phase
+                try? await Task.sleep(for: .seconds(1.5))
+                guard !Task.isCancelled else { return }
+                withAnimation { phase = .repliesReady }
+
+                // Reveal replies one by one
+                for i in 1...replies.count {
+                    try? await Task.sleep(for: .seconds(0.5))
+                    guard !Task.isCancelled else { return }
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        visibleReplies = i
+                    }
+                }
+            }
         }
     }
 
@@ -178,21 +201,4 @@ struct AppDemoStepView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Demo Sequence
-
-    private func startDemoSequence() {
-        Task { @MainActor in
-            // Simulate "reading" phase
-            try? await Task.sleep(for: .seconds(1.5))
-            withAnimation { phase = .repliesReady }
-
-            // Reveal replies one by one
-            for i in 1...replies.count {
-                try? await Task.sleep(for: .seconds(0.5))
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    visibleReplies = i
-                }
-            }
-        }
-    }
 }

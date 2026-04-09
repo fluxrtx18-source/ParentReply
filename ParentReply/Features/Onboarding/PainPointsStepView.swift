@@ -6,6 +6,7 @@ struct PainPointsStepView: View {
     var onBack: () -> Void
     var onContinue: ([String]) -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selected: Set<String> = []
     @State private var appeared = false
 
@@ -91,7 +92,15 @@ struct PainPointsStepView: View {
                 .background(AppDesign.Color.background)
             }
         }
-        .onAppear { appeared = true }
+        .onAppear {
+            if reduceMotion {
+                var transaction = Transaction(animation: nil)
+                transaction.disablesAnimations = true
+                withTransaction(transaction) { appeared = true }
+            } else {
+                appeared = true
+            }
+        }
     }
 
     // MARK: - Top bar

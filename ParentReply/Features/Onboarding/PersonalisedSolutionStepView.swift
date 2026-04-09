@@ -5,6 +5,7 @@ import SwiftUI
 struct PersonalisedSolutionStepView: View {
     var onContinue: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var appeared = false
 
     var body: some View {
@@ -64,7 +65,15 @@ struct PersonalisedSolutionStepView: View {
             .opacity(appeared ? 1 : 0)
             .animation(.easeOut(duration: 0.35).delay(0.5), value: appeared)
         }
-        .onAppear { appeared = true }
+        .onAppear {
+            if reduceMotion {
+                var transaction = Transaction(animation: nil)
+                transaction.disablesAnimations = true
+                withTransaction(transaction) { appeared = true }
+            } else {
+                appeared = true
+            }
+        }
     }
 }
 

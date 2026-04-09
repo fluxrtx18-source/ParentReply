@@ -6,6 +6,7 @@ import SwiftUI
 struct ValueDeliveryStepView: View {
     var onContinue: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: Phase = .processing
     @State private var appeared = false
 
@@ -30,10 +31,18 @@ struct ValueDeliveryStepView: View {
             }
         }
         .animation(.easeInOut(duration: 0.5), value: phase)
-        .onAppear {
-            appeared = true
-            Task {
+        .task {
+            if reduceMotion {
+                var transaction = Transaction(animation: nil)
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    appeared = true
+                    phase = .revealed
+                }
+            } else {
+                appeared = true
                 try? await Task.sleep(for: .seconds(1.8))
+                guard !Task.isCancelled else { return }
                 withAnimation { phase = .revealed }
             }
         }

@@ -20,24 +20,9 @@ struct MainActionButton: View {
             MainActionButtonLabel(isLoading: isLoading)
                 .allowsHitTesting(false)
         }
-        .onChange(of: pickerItem) {
-            loadImage()
-        }
-        .alert("Couldn't Load Photo", isPresented: Binding(
-            get: { loadError != nil },
-            set: { if !$0 { loadError = nil } }
-        )) {
-            Button("OK", role: .cancel) { loadError = nil }
-        } message: {
-            Text(loadError ?? "")
-        }
-    }
-
-    private func loadImage() {
-        guard let item = pickerItem else { return }
-        isLoading = true
-
-        Task { @MainActor in
+        .task(id: pickerItem) {
+            guard let item = pickerItem else { return }
+            isLoading = true
             defer { isLoading = false; pickerItem = nil }
             do {
                 guard let data  = try await item.loadTransferable(type: Data.self),
@@ -49,6 +34,14 @@ struct MainActionButton: View {
             } catch {
                 loadError = "Couldn't load the photo from your library. Please try again."
             }
+        }
+        .alert("Couldn't Load Photo", isPresented: .init(
+            get: { loadError != nil },
+            set: { if !$0 { loadError = nil } }
+        ), presenting: loadError) { _ in
+            Button("OK", role: .cancel) { loadError = nil }
+        } message: { error in
+            Text(error)
         }
     }
 }

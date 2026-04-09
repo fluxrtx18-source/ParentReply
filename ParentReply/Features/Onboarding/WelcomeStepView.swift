@@ -4,6 +4,7 @@ import SwiftUI
 struct WelcomeStepView: View {
     var onGetStarted: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var appeared = false
 
     var body: some View {
@@ -67,6 +68,14 @@ struct WelcomeStepView: View {
                 .animation(.easeOut(duration: 0.4).delay(0.45), value: appeared)
             }
         }
-        .onAppear { appeared = true }
+        .onAppear {
+            if reduceMotion {
+                var transaction = Transaction(animation: nil)
+                transaction.disablesAnimations = true
+                withTransaction(transaction) { appeared = true }
+            } else {
+                appeared = true
+            }
+        }
     }
 }
