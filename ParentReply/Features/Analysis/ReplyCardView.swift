@@ -9,6 +9,10 @@ struct ReplyCardView: View {
     var isLocked: Bool = false
     let onCopy: () -> Void
 
+    /// Fixed placeholder text shown behind the blur for locked tones.
+    /// Prevents real reply content from leaking into the render buffer or accessibility tree.
+    private static let redactedPlaceholder = "This reply is available with ParentReply Pro. Upgrade to unlock all six tone options and the situation summary."
+
     var body: some View {
         Button(action: onCopy) {
             cardContent
@@ -29,7 +33,7 @@ struct ReplyCardView: View {
 
             if isLocked {
                 ZStack {
-                    Text(replyText)
+                    Text(Self.redactedPlaceholder)
                         .font(AppDesign.Font.body)
                         .foregroundStyle(AppDesign.Color.textPrimary.opacity(0.95))
                         .lineSpacing(4)

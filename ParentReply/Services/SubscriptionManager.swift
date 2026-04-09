@@ -15,15 +15,17 @@ final class SubscriptionManager {
     // MARK: - Observed state
     private(set) var products: [Product] = []
     private(set) var activeSubscription: Product?
+    private(set) var subscribedProductIDs: Set<String> = []
     private(set) var isLoadingProducts = false
     private(set) var purchaseError: String?
+    var restoreMessage: String?
     private(set) var isRestoring = false
 
-    var isSubscribed: Bool { activeSubscription != nil }
+    var isSubscribed: Bool { !subscribedProductIDs.isEmpty }
 
     // MARK: - Private
     @ObservationIgnored
-    private nonisolated(unsafe) var transactionListenerTask: Task<Void, Error>?
+    private nonisolated(unsafe) var transactionListenerTask: Task<Void, Never>?
 
     init() {
         transactionListenerTask = startTransactionListener()
@@ -70,9 +72,14 @@ final class SubscriptionManager {
             let result = try await product.purchase()
             switch result {
             case .success(let verification):
-                let transaction = try checkVerified(verification)
-                await refreshEntitlements()
-                await transaction.finish()
+                switch verification {
+                case .verified(let transaction):
+                    await refreshEntitlements()
+                    await transaction.finish()
+                case .unverified(let transaction, _):
+                    await transaction.finish()
+                    purchaseError = "Purchase verification failed. Please try again."
+                }
             case .pending, .userCancelled:
                 break
             @unknown default:
@@ -95,12 +102,13 @@ final class SubscriptionManager {
     func restore() async {
         isRestoring = true
         purchaseError = nil
+        restoreMessage = nil
         defer { isRestoring = false }
         do {
             try await AppStore.sync()
             await refreshEntitlements()
-            if activeSubscription == nil {
-                purchaseError = "No active subscription found for this Apple ID."
+            if activeSubscription == nil && !isSubscribed {
+                restoreMessage = "No active subscription found for this Apple ID."
             }
         } catch StoreKitError.userCancelled {
             // User dismissed the Apple ID sign-in sheet — not a real error.
@@ -130,31 +138,23 @@ final class SubscriptionManager {
             validProductIDs.insert(transaction.productID)
         }
 
+        subscribedProductIDs = validProductIDs
         activeSubscription = products
             .filter { validProductIDs.contains($0.id) }
             .max(by: { $0.price < $1.price })
     }
 
-    private func startTransactionListener() -> Task<Void, Error> {
+    private func startTransactionListener() -> Task<Void, Never> {
         Task {
             for await result in Transaction.updates {
-                if case .verified(let transaction) = result {
+                switch result {
+                case .verified(let transaction):
                     await refreshEntitlements()
+                    await transaction.finish()
+                case .unverified(let transaction, _):
                     await transaction.finish()
                 }
             }
         }
-    }
-
-    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
-        switch result {
-        case .unverified: throw PurchaseError.verificationFailed
-        case .verified(let value): return value
-        }
-    }
-
-    enum PurchaseError: LocalizedError {
-        case verificationFailed
-        var errorDescription: String? { "Purchase verification failed. Please try again." }
     }
 }

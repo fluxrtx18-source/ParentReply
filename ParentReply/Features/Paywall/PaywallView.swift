@@ -7,6 +7,10 @@ struct PaywallView: View {
     /// shows a "Start free — 5 replies included" escape hatch below the CTA.
     var isOnboarding: Bool = false
 
+    // MARK: - Constants
+    private static let termsURL   = URL(string: "https://fluxrtx18-source.github.io/ParentReply/terms")!
+    private static let privacyURL = URL(string: "https://fluxrtx18-source.github.io/ParentReply/privacy")!
+
     @Environment(SubscriptionManager.self) private var subscriptionManager
     @Environment(\.dismiss)               private var dismiss
 
@@ -73,6 +77,22 @@ struct PaywallView: View {
                 if isOnboarding { onDismiss() } else { dismiss() }
             }
         }
+        .alert("Purchase Failed", isPresented: .init(
+            get: { purchaseError != nil },
+            set: { if !$0 { purchaseError = nil } }
+        ), presenting: purchaseError) { _ in
+            Button("OK", role: .cancel) { purchaseError = nil }
+        } message: { error in
+            Text(error)
+        }
+        .alert("Restore Purchases", isPresented: .init(
+            get: { subscriptionManager.restoreMessage != nil },
+            set: { if !$0 { subscriptionManager.restoreMessage = nil } }
+        ), presenting: subscriptionManager.restoreMessage) { _ in
+            Button("OK", role: .cancel) { subscriptionManager.restoreMessage = nil }
+        } message: { msg in
+            Text(msg)
+        }
     }
 
     // MARK: - Nav Bar
@@ -135,9 +155,7 @@ struct PaywallView: View {
     private var headlineAttributed: AttributedString {
         var string = AttributedString("Reply smarter\nwith ParentReply Pro")
         if let range = string.range(of: "ParentReply Pro") {
-            string[range].foregroundColor = UIColor(
-                red: 0.05, green: 0.58, blue: 0.53, alpha: 1
-            )
+            string[range].foregroundColor = UIColor(AppDesign.Color.accent)
         }
         return string
     }
@@ -212,16 +230,19 @@ struct PaywallView: View {
     private var planCards: some View {
         VStack(spacing: 14) {
             ForEach(subscriptionManager.products) { product in
-                PlanCard(
-                    product: product,
-                    isSelected: selectedProductID == product.id,
-                    weeklyProduct: subscriptionManager.products.first(where: { $0.id == SubscriptionManager.weeklyID })
-                )
-                .onTapGesture {
+                Button {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.72)) {
                         selectedProductID = product.id
                     }
+                } label: {
+                    PlanCard(
+                        product: product,
+                        isSelected: selectedProductID == product.id,
+                        weeklyProduct: subscriptionManager.products.first(where: { $0.id == SubscriptionManager.weeklyID })
+                    )
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel("\(product.displayName), \(product.displayPrice)")
             }
         }
     }
@@ -280,13 +301,9 @@ struct PaywallView: View {
             }
 
             HStack(spacing: 4) {
-                if let termsURL = URL(string: "https://fluxrtx18-source.github.io/ParentReply/terms") {
-                    Link("Terms of Use", destination: termsURL)
-                }
+                Link("Terms of Use", destination: Self.termsURL)
                 Text("·").foregroundStyle(AppDesign.Color.textSecondary)
-                if let privacyURL = URL(string: "https://fluxrtx18-source.github.io/ParentReply/privacy") {
-                    Link("Privacy Policy", destination: privacyURL)
-                }
+                Link("Privacy Policy", destination: Self.privacyURL)
             }
             .font(.system(size: 11))
             .foregroundStyle(AppDesign.Color.textSecondary)
@@ -306,6 +323,7 @@ struct PaywallView: View {
         isPurchasing = true
         defer { isPurchasing = false }
         await subscriptionManager.purchase(product)
+        purchaseError = subscriptionManager.purchaseError
     }
 }
 

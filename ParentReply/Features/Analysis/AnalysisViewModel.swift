@@ -12,6 +12,11 @@ final class AnalysisViewModel {
         case analyzing
         case complete
         case failed(String)
+
+        var isFailed: Bool {
+            if case .failed = self { return true }
+            return false
+        }
     }
 
     // MARK: - Observed properties
@@ -34,6 +39,13 @@ final class AnalysisViewModel {
     // MARK: - Analysis
 
     func analyze(image: UIImage, usageTracker: UsageTracker, isSubscribed: Bool = false) async {
+        guard state == .idle || state.isFailed else { return }
+
+        if !isSubscribed && usageTracker.hasReachedLimit {
+            state = .failed("You've used all \(UsageTracker.weeklyFreeLimit) free replies this week. Upgrade to continue.")
+            return
+        }
+
         state = .extractingText
 
         do {

@@ -1,3 +1,4 @@
+import Foundation
 import FoundationModels
 
 protocol MessageAnalyzing: Sendable {
@@ -23,12 +24,15 @@ actor AIParentService: MessageAnalyzing {
     // context object is re-allocated, so the performance cost is minimal.
 
     func analyze(messageText: String) async throws -> SchoolMessageAnalysis {
-        let input = (messageText.count > Self.maxInputLength
+        let trimmed = messageText.count > Self.maxInputLength
             ? String(messageText.prefix(Self.maxInputLength))
-            : messageText)
-            // Prevent prompt-structure injection: if a screenshot contains the
-            // literal string "</message>", it would close the XML delimiter early.
-            .replacingOccurrences(of: "</message>", with: "< /message>")
+            : messageText
+        // Prevent prompt-structure injection: neutralise any XML-like
+        // <message> or </message> tags (case-insensitive) so user content
+        // cannot close the delimiter early or open a new one.
+        let input = trimmed
+            .replacingOccurrences(of: "</message>", with: "< /message>", options: .caseInsensitive)
+            .replacingOccurrences(of: "<message>", with: "< message>", options: .caseInsensitive)
 
         let prompt = """
         You are an experienced school communication assistant who helps parents \
@@ -52,10 +56,46 @@ actor AIParentService: MessageAnalyzing {
         """
 
         let session = LanguageModelSession()
-        let response = try await session.respond(
-            to: prompt,
-            generating: SchoolMessageAnalysis.self
-        )
-        return response.content
+
+        let response: LanguageModelSession.Response<SchoolMessageAnalysis>
+        do {
+            response = try await session.respond(
+                to: prompt,
+                generating: SchoolMessageAnalysis.self
+            )
+        } catch let error as AnalysisError {
+            throw error
+        } catch {
+            let desc = String(describing: error)
+            if desc.contains("unavailable") || desc.contains("not supported") || desc.contains("not available") {
+                throw AnalysisError.modelUnavailable
+            }
+            throw error
+        }
+
+        let result = response.content
+        guard !result.situationSummary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw AnalysisError.emptyModelOutput
+        }
+        for tone in ReplyTone.allCases {
+            guard !result.reply(for: tone).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                throw AnalysisError.emptyModelOutput
+            }
+        }
+        return result
+    }
+
+    enum AnalysisError: LocalizedError {
+        case emptyModelOutput
+        case modelUnavailable
+
+        var errorDescription: String? {
+            switch self {
+            case .emptyModelOutput:
+                "The AI returned an incomplete response. Please try again."
+            case .modelUnavailable:
+                "On-device AI is not available on this device. Please enable Apple Intelligence in Settings or try on a supported device."
+            }
+        }
     }
 }

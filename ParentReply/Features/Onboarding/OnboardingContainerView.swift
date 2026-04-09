@@ -7,7 +7,6 @@ struct OnboardingContainerView: View {
     @AppStorage(UserDefaultsKeys.onboardingComplete) private var onboardingComplete = false
 
     @State private var step: OnboardingStep = .welcome
-    @State private var selectedPainPoints: [String] = []
 
     var body: some View {
         ZStack {
@@ -29,8 +28,7 @@ struct OnboardingContainerView: View {
             case .painPoints:
                 PainPointsStepView(
                     onBack: { retreat(to: .carousel) },
-                    onContinue: { points in
-                        selectedPainPoints = points
+                    onContinue: { _ in
                         advance(to: .solution)
                     }
                 )
