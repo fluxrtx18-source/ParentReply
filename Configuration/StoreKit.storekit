@@ -36,11 +36,16 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "2.99",
+          "displayPrice" : "3.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "PR_WEEKLY",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0",
+            "internalID" : "PR_WEEKLY_TRIAL",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
           "localizations" : [
             {
               "description" : "All 6 tones + situation summary",
@@ -61,11 +66,16 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "6.99",
+          "displayPrice" : "9.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "PR_MONTHLY",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0",
+            "internalID" : "PR_MONTHLY_TRIAL",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
           "localizations" : [
             {
               "description" : "All 6 tones + situation summary",
@@ -86,11 +96,16 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "29.99",
+          "displayPrice" : "39.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "PR_YEARLY",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0",
+            "internalID" : "PR_YEARLY_TRIAL",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
           "localizations" : [
             {
               "description" : "All 6 tones + situation summary — best value",

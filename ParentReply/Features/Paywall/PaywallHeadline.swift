@@ -9,8 +9,8 @@ struct PaywallHeadline: View {
     }
 
     private var attributed: AttributedString {
-        var string = AttributedString("Reply smarter\nwith ParentReply Pro")
-        if let range = string.range(of: "ParentReply Pro") {
+        var string = AttributedString("Never struggle with\nschool replies again")
+        if let range = string.range(of: "school replies") {
             string[range].foregroundColor = AppDesign.Color.accent
         }
         return string

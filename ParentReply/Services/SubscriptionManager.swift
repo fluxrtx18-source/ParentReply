@@ -185,7 +185,7 @@ final class SubscriptionManager {
             guard let product = products.first(where: { $0.id == id }),
                   let statuses = try? await product.subscription?.status else { continue }
             for status in statuses {
-                if status.state == .inBillingRetryPeriod {
+                if status.state == .inBillingRetryPeriod || status.state == .inGracePeriod {
                     billingIssueDetected = true
                 }
             }

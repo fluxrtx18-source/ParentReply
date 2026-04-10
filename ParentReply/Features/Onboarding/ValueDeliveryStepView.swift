@@ -21,10 +21,10 @@ struct ValueDeliveryStepView: View {
 
             switch phase {
             case .processing:
-                processingView
+                ProcessingView()
                     .transition(.opacity)
             case .revealed:
-                revealedView
+                RepliesRevealedView(replies: replies, onContinue: onContinue)
                     .transition(.asymmetric(
                         insertion: .move(edge: .bottom).combined(with: .opacity),
                         removal: .opacity
@@ -48,164 +48,6 @@ struct ValueDeliveryStepView: View {
                 AccessibilityNotification.Announcement("Your replies are ready").post()
             }
         }
-    }
-
-    // MARK: - Processing
-
-    private var processingView: some View {
-        VStack(spacing: 28) {
-            Spacer()
-
-            ZStack {
-                Circle()
-                    .fill(AppDesign.Color.accent.opacity(0.08))
-                    .frame(width: 120, height: 120)
-                ProgressView()
-                    .scaleEffect(1.6)
-                    .tint(AppDesign.Color.accent)
-            }
-
-            VStack(spacing: 8) {
-                Text("Crafting your replies...")
-                    .font(.system(.title3, design: .rounded, weight: .bold))
-                    .foregroundStyle(AppDesign.Color.textPrimary)
-                Text("Finding the right words for every tone")
-                    .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(AppDesign.Color.textSecondary)
-            }
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-    }
-
-    // MARK: - Revealed
-
-    private var revealedView: some View {
-        ZStack(alignment: .bottom) {
-            ScrollView {
-                VStack(spacing: 0) {
-                    Spacer().frame(height: 52)
-
-                    VStack(spacing: 10) {
-                        Text("Your replies are ready!")
-                            .font(.system(.title, design: .rounded, weight: .black))
-                            .foregroundStyle(AppDesign.Color.textPrimary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 28)
-
-                        Text("ParentReply crafted \(replies.count) tone options for you.")
-                            .font(.system(.subheadline, design: .rounded))
-                            .foregroundStyle(AppDesign.Color.textSecondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 36)
-                    }
-
-                    Spacer().frame(height: 32)
-
-                    // Reply preview
-                    VStack(spacing: 12) {
-                        ForEach(replies.enumerated(), id: \.offset) { idx, reply in
-                            replyPreviewRow(reply: reply, index: idx + 1)
-                                .transition(.move(edge: .bottom).combined(with: .opacity))
-                        }
-                    }
-                    .padding(.horizontal, 20)
-
-                    Spacer().frame(height: 24)
-
-                    statsStrip
-
-                    Spacer().frame(height: 120)
-                }
-            }
-            .scrollIndicators(.hidden)
-
-            // CTA
-            VStack(spacing: 0) {
-                Divider().opacity(0.2)
-                Button(action: onContinue) {
-                    HStack(spacing: 8) {
-                        Text("Keep my replies")
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 15, weight: .semibold))
-                    }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 54)
-                    .background(AppDesign.Color.accentGradient, in: Capsule())
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 14)
-                .padding(.bottom, 20)
-                .background(AppDesign.Color.background)
-            }
-        }
-    }
-
-    // MARK: - Reply Preview Row
-
-    private func replyPreviewRow(reply: (tone: ReplyTone, text: String), index: Int) -> some View {
-        HStack(spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(reply.tone.color.opacity(0.12))
-                    .frame(width: 36, height: 36)
-                Image(systemName: reply.tone.icon)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(reply.tone.color)
-            }
-            .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(reply.tone.displayName.uppercased())
-                    .font(.system(.caption2, design: .rounded, weight: .semibold))
-                    .tracking(0.8)
-                    .foregroundStyle(reply.tone.color)
-                Text(reply.text)
-                    .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(AppDesign.Color.textPrimary)
-                    .lineLimit(2)
-            }
-
-            Spacer()
-
-            Image(systemName: "doc.on.doc")
-                .font(.system(size: 12))
-                .foregroundStyle(AppDesign.Color.textSecondary)
-                .accessibilityHidden(true)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(AppDesign.Color.surface)
-                .shadow(color: .black.opacity(0.12), radius: 6, y: 2)
-        )
-        .overlay {
-            RoundedRectangle(cornerRadius: 14)
-                .strokeBorder(AppDesign.Color.border, lineWidth: 1)
-        }
-    }
-
-    // MARK: - Stats strip
-
-    private var statsStrip: some View {
-        HStack(spacing: 0) {
-            StatPill(value: "6", label: "Tones")
-            Divider().frame(height: 32).overlay { AppDesign.Color.border }
-            StatPill(value: "1", label: "Message")
-            Divider().frame(height: 32).overlay { AppDesign.Color.border }
-            StatPill(value: "0s", label: "Wait time")
-        }
-        .padding(.horizontal, 28)
-        .padding(.vertical, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(AppDesign.Color.accent.opacity(0.06))
-        )
-        .padding(.horizontal, 20)
     }
 }
 

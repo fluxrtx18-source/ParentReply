@@ -43,7 +43,7 @@ struct AppDemoStepView: View {
                     Spacer().frame(height: 24)
 
                     // Simulated message card
-                    messageCard
+                    DemoMessageCard(demo: demo)
                         .padding(.horizontal, 20)
                         .opacity(appeared ? 1 : 0)
                         .animation(.easeOut(duration: 0.4).delay(0.15), value: appeared)
@@ -55,8 +55,17 @@ struct AppDemoStepView: View {
                         VStack(spacing: 12) {
                             ForEach(replies.enumerated(), id: \.offset) { idx, reply in
                                 if idx < visibleReplies {
-                                    demoReplyCard(reply: reply, index: idx)
-                                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                                    DemoReplyCard(
+                                        tone: reply.tone,
+                                        text: reply.text,
+                                        isExpanded: selectedReply == idx,
+                                        onTap: {
+                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                selectedReply = (selectedReply == idx) ? nil : idx
+                                            }
+                                        }
+                                    )
+                                    .transition(.move(edge: .bottom).combined(with: .opacity))
                                 }
                             }
                         }
@@ -74,7 +83,7 @@ struct AppDemoStepView: View {
                     Divider().opacity(0.2)
                     Button(action: onContinue) {
                         Text("That's amazing — continue")
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            .font(.system(.body, design: .rounded, weight: .semibold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 54)
@@ -116,94 +125,6 @@ struct AppDemoStepView: View {
                 AccessibilityNotification.LayoutChanged().post()
             }
         }
-    }
-
-    // MARK: - Message Card
-
-    private var messageCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
-                Circle()
-                    .fill(AppDesign.Color.accent.opacity(0.15))
-                    .frame(width: 36, height: 36)
-                    .overlay {
-                        Text(String(demo.from.prefix(1)))
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
-                            .foregroundStyle(AppDesign.Color.accent)
-                    }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(demo.from)
-                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                        .foregroundStyle(AppDesign.Color.textPrimary)
-                    Text(demo.subject)
-                        .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(AppDesign.Color.textSecondary)
-                }
-            }
-
-            Text(demo.body)
-                .font(.system(.subheadline, design: .rounded))
-                .foregroundStyle(AppDesign.Color.textPrimary.opacity(0.85))
-                .lineSpacing(4)
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(AppDesign.Color.surface)
-        )
-        .overlay {
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(AppDesign.Color.border, lineWidth: 1)
-        }
-    }
-
-    // MARK: - Demo Reply Card
-
-    private func demoReplyCard(reply: (tone: ReplyTone, text: String), index: Int) -> some View {
-        Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                selectedReply = (selectedReply == index) ? nil : index
-            }
-        } label: {
-
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 6) {
-                    Image(systemName: reply.tone.icon)
-                        .font(.system(size: 12))
-                    Text(reply.tone.displayName.uppercased())
-                        .font(.system(.caption2, design: .rounded, weight: .bold))
-                        .tracking(0.5)
-                }
-                .foregroundStyle(reply.tone.color)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(reply.tone.color.opacity(0.12), in: Capsule())
-
-                Text(reply.text)
-                    .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(AppDesign.Color.textPrimary.opacity(0.9))
-                    .lineSpacing(3)
-                    .lineLimit(selectedReply == index ? nil : 2)
-                    .multilineTextAlignment(.leading)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(14)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(AppDesign.Color.surface)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 14)
-                    .strokeBorder(
-                        selectedReply == index ? reply.tone.color : AppDesign.Color.border,
-                        lineWidth: selectedReply == index ? 1.5 : 1
-                    )
-            }
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("\(reply.tone.displayName) reply: \(reply.text)")
-        .accessibilityHint(selectedReply == index ? "Double-tap to collapse" : "Double-tap to expand")
     }
 
 }

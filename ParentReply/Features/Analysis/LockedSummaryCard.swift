@@ -34,6 +34,7 @@ struct LockedSummaryCard: View {
                 .clipShape(.rect(cornerRadius: AppDesign.Radius.md, style: .continuous))
             }
             .accessibilityLabel("Situation summary — upgrade to unlock")
+            .accessibilityHint("Double-tap to open upgrade options")
         }
         .clipShape(.rect(cornerRadius: AppDesign.Radius.md, style: .continuous))
     }

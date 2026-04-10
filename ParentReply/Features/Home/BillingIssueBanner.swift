@@ -6,7 +6,7 @@ struct BillingIssueBanner: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(.footnote, design: .rounded, weight: .semibold))
                 .foregroundStyle(.orange)
                 .accessibilityHidden(true)
 

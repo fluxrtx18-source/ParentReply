@@ -16,7 +16,7 @@ struct PainPointsStepView: View {
 
             VStack(spacing: 0) {
                 // Top bar with back button
-                topBar
+                PainPointsTopBar(onBack: onBack)
                     .padding(.top, 12)
                     .padding(.horizontal, 24)
 
@@ -104,22 +104,6 @@ struct PainPointsStepView: View {
         }
     }
 
-    // MARK: - Top bar
-
-    private var topBar: some View {
-        HStack {
-            Button(action: onBack) {
-                Image(systemName: "arrow.left")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(AppDesign.Color.textPrimary)
-            }
-            .frame(width: 44, height: 44)
-            .contentShape(Rectangle())
-            .accessibilityLabel("Go back")
-            Spacer()
-        }
-        .frame(height: 32)
-    }
 }
 
 // MARK: - Pain Point Card

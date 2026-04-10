@@ -34,7 +34,7 @@ struct HomeView: View {
                             Text("·").foregroundStyle(AppDesign.Color.textSecondary)
                             Link("Terms of Use", destination: Self.termsURL)
                         }
-                        .font(.system(.caption2, design: .rounded))
+                        .font(.system(.caption, design: .rounded))
                         .foregroundStyle(AppDesign.Color.textSecondary)
 
                         Spacer(minLength: AppDesign.Spacing.xxl)

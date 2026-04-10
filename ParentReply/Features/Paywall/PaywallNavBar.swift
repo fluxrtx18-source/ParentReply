@@ -9,7 +9,7 @@ struct PaywallNavBar: View {
             if !isOnboarding {
                 Button(action: onDismiss) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.system(.subheadline, design: .rounded, weight: .medium))
                         .foregroundStyle(AppDesign.Color.textSecondary)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())

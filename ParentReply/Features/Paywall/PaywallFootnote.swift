@@ -18,7 +18,7 @@ struct PaywallFootnote: View {
                 Text("·").foregroundStyle(AppDesign.Color.textSecondary)
                 Link("Privacy Policy", destination: privacyURL)
             }
-            .font(.system(.caption2))
+            .font(.system(.caption, design: .rounded))
             .foregroundStyle(AppDesign.Color.textSecondary)
         }
         .frame(maxWidth: .infinity)

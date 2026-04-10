@@ -4,10 +4,10 @@ struct PaywallFreeTrialBanner: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: "gift.fill")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(.footnote, design: .rounded, weight: .semibold))
                 .foregroundStyle(AppDesign.Color.accent)
                 .accessibilityHidden(true)
-            Text("5 free replies included — no credit card needed")
+            Text("Start your free trial — no charge until it ends")
                 .font(.system(.footnote, design: .rounded, weight: .medium))
                 .foregroundStyle(AppDesign.Color.accent)
             Spacer()

@@ -25,9 +25,18 @@ struct PlanCard: View {
 
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(product.displayName)
-                        .font(.system(.callout, design: .rounded, weight: .bold))
-                        .foregroundStyle(AppDesign.Color.textPrimary)
+                    HStack(spacing: 6) {
+                        Text(product.displayName)
+                            .font(.system(.callout, design: .rounded, weight: .bold))
+                            .foregroundStyle(AppDesign.Color.textPrimary)
+
+                        if let trialText = trialBadgeText {
+                            Text(trialText)
+                                .font(.system(.caption, design: .rounded, weight: .semibold))
+                                .foregroundStyle(AppDesign.Color.accent)
+                        }
+                    }
+
                     Text(product.displayPrice)
                         .font(.system(.footnote, design: .rounded))
                         .foregroundStyle(AppDesign.Color.textSecondary)
@@ -59,6 +68,23 @@ struct PlanCard: View {
             .padding(.vertical, 18)
         }
     }
+
+    // MARK: - Trial Badge
+
+    private var trialBadgeText: String? {
+        guard let offer = product.subscription?.introductoryOffer,
+              offer.paymentMode == .freeTrial else { return nil }
+        let period = offer.period
+        switch period.unit {
+        case .day:   return period.value == 1 ? "1-day trial"   : "\(period.value)-day trial"
+        case .week:  return period.value == 1 ? "1-week trial"  : "\(period.value)-week trial"
+        case .month: return period.value == 1 ? "1-month trial" : "\(period.value)-month trial"
+        case .year:  return period.value == 1 ? "1-year trial"  : "\(period.value)-year trial"
+        @unknown default: return nil
+        }
+    }
+
+    // MARK: - Savings Badge
 
     private var savingsBadge: String? {
         guard let weekly = weeklyProduct,

@@ -52,7 +52,6 @@ enum AppDesign {
         static let subhead    = SwiftUI.Font.system(.subheadline, design: .rounded)
         static let footnote   = SwiftUI.Font.system(.footnote,    design: .rounded)
         static let caption    = SwiftUI.Font.system(.caption,     design: .rounded)
-        static let caption2   = SwiftUI.Font.system(.caption2,    design: .rounded)
     }
 
     enum Anim {

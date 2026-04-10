@@ -21,9 +21,9 @@ struct PaywallView: View {
     @State private var showRestoreAlert  = false
 
     private let timeline: [(icon: String, title: String, body: String)] = [
-        ("lock.open.fill", "Today", "Unlock all 6 reply tones plus the situation summary for every message"),
-        ("sparkles", "Instantly", "On-device AI — your messages stay private, no cloud, no waiting"),
-        ("crown.fill", "Always", "Cancel anytime from your App Store subscription settings")
+        ("lock.open.fill", "Today", "Perfect reply in seconds — 6 tones to match any school situation"),
+        ("sparkles", "Private", "100% on-device AI — your messages never leave your phone"),
+        ("crown.fill", "Risk-free", "Try free, cancel anytime from App Store settings")
     ]
 
     var body: some View {

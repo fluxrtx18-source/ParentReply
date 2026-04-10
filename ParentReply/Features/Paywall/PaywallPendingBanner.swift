@@ -4,7 +4,7 @@ struct PaywallPendingBanner: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: "clock.badge.checkmark")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(.footnote, design: .rounded, weight: .semibold))
                 .foregroundStyle(AppDesign.Color.accent)
                 .accessibilityHidden(true)
             Text("Your purchase is awaiting approval. Access will unlock automatically once confirmed.")
