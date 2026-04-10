@@ -35,7 +35,7 @@ struct CarouselStepView: View {
                     userSwiped = true
                 }
 
-                // Page dots
+                // Page dots (decorative — TabView handles page accessibility)
                 HStack(spacing: 8) {
                     ForEach(cards.indices, id: \.self) { i in
                         Capsule()
@@ -45,13 +45,14 @@ struct CarouselStepView: View {
                     }
                 }
                 .padding(.top, 16)
+                .accessibilityHidden(true)
 
                 Spacer()
 
                 // CTA
                 Button(action: onContinue) {
                     Text("Continue")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(.body, design: .rounded, weight: .semibold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 54)
@@ -84,53 +85,4 @@ struct CarouselStepView: View {
 
 // MARK: - Feature Card Item
 
-private struct FeatureCardItemView: View {
-    let card: FeatureCard
-
-    var body: some View {
-        VStack(spacing: 20) {
-            ZStack {
-                Circle()
-                    .fill(Color(hex: card.accentHex).opacity(0.12))
-                    .frame(width: 80, height: 80)
-                Image(systemName: card.icon)
-                    .font(.system(size: 34, weight: .semibold))
-                    .foregroundStyle(Color(hex: card.accentHex))
-            }
-
-            VStack(spacing: 8) {
-                Text(card.label)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Color(hex: card.accentHex))
-                    .tracking(1.2)
-                    .textCase(.uppercase)
-
-                Text(card.headline)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(AppDesign.Color.textPrimary)
-                    .multilineTextAlignment(.center)
-
-                Text(card.body)
-                    .font(.system(size: 15, design: .rounded))
-                    .foregroundStyle(AppDesign.Color.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(3)
-                    .padding(.horizontal, 8)
-            }
-
-            Spacer()
-        }
-        .padding(.top, 28)
-        .padding(.horizontal, 8)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(AppDesign.Color.surface)
-                .shadow(color: .black.opacity(0.15), radius: 12, y: 4)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .strokeBorder(AppDesign.Color.border, lineWidth: 1)
-        )
-    }
-}
+// FeatureCardItemView extracted to FeatureCardItemView.swift

@@ -12,13 +12,13 @@ struct PersonalisedSolutionStepView: View {
         ZStack(alignment: .bottom) {
             AppDesign.Color.background.ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack(spacing: 0) {
                     Spacer().frame(height: 52)
 
                     // Headline
                     Text("Here's how ParentReply\nhelps you")
-                        .font(.system(size: 26, weight: .black, design: .rounded))
+                        .font(.system(.title, design: .rounded, weight: .black))
                         .foregroundStyle(AppDesign.Color.textPrimary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 28)
@@ -30,7 +30,7 @@ struct PersonalisedSolutionStepView: View {
 
                     // Solution items
                     VStack(spacing: 14) {
-                        ForEach(Array(PersonalisedSolutionData.items.enumerated()), id: \.element.id) { idx, item in
+                        ForEach(PersonalisedSolutionData.items.enumerated(), id: \.element.id) { idx, item in
                             SolutionRow(item: item)
                                 .opacity(appeared ? 1 : 0)
                                 .offset(y: appeared ? 0 : 18)
@@ -51,7 +51,7 @@ struct PersonalisedSolutionStepView: View {
                 Divider().opacity(0.2)
                 Button(action: onContinue) {
                     Text("Show me how")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(.body, design: .rounded, weight: .semibold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 54)
@@ -65,7 +65,8 @@ struct PersonalisedSolutionStepView: View {
             .opacity(appeared ? 1 : 0)
             .animation(.easeOut(duration: 0.35).delay(0.5), value: appeared)
         }
-        .onAppear {
+        .scrollIndicators(.hidden)
+        .task {
             if reduceMotion {
                 var transaction = Transaction(animation: nil)
                 transaction.disablesAnimations = true
@@ -79,43 +80,4 @@ struct PersonalisedSolutionStepView: View {
 
 // MARK: - Solution Row
 
-private struct SolutionRow: View {
-    let item: SolutionItem
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(AppDesign.Color.accent.opacity(0.10))
-                    .frame(width: 48, height: 48)
-                Image(systemName: item.icon)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(AppDesign.Color.accent)
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(item.painPoint)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                    .foregroundStyle(AppDesign.Color.textSecondary)
-                    .strikethrough(true, color: AppDesign.Color.textSecondary.opacity(0.6))
-
-                Text(item.solution)
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
-                    .foregroundStyle(AppDesign.Color.textPrimary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Spacer()
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(AppDesign.Color.surface)
-                .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(AppDesign.Color.border, lineWidth: 1)
-        )
-    }
-}
+// SolutionRow extracted to SolutionRow.swift

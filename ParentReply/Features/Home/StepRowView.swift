@@ -16,6 +16,7 @@ struct StepRowView: View {
                     .bold()
                     .foregroundStyle(AppDesign.Color.accent)
             }
+            .accessibilityHidden(true)
 
             Label(text, systemImage: icon)
                 .font(AppDesign.Font.body)

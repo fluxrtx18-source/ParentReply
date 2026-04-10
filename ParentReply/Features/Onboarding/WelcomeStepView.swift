@@ -14,7 +14,7 @@ struct WelcomeStepView: View {
             VStack(spacing: 0) {
                 Spacer()
 
-                // App icon representation
+                // App icon representation (decorative)
                 ZStack {
                     Circle()
                         .fill(AppDesign.Color.accent.opacity(0.12))
@@ -26,12 +26,13 @@ struct WelcomeStepView: View {
                 .scaleEffect(appeared ? 1 : 0.6)
                 .opacity(appeared ? 1 : 0)
                 .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1), value: appeared)
+                .accessibilityHidden(true)
 
                 Spacer().frame(height: 36)
 
                 // Headline
                 Text("Reply to school\nwith confidence.")
-                    .font(.system(size: 34, weight: .black, design: .rounded))
+                    .font(.system(.largeTitle, design: .rounded, weight: .black))
                     .foregroundStyle(AppDesign.Color.textPrimary)
                     .multilineTextAlignment(.center)
                     .opacity(appeared ? 1 : 0)
@@ -42,7 +43,7 @@ struct WelcomeStepView: View {
 
                 // Body
                 Text("Screenshot any school message. ParentReply crafts six perfect replies — 100% on your device, totally private.")
-                    .font(.system(size: 16, weight: .regular, design: .rounded))
+                    .font(.system(.body, design: .rounded))
                     .foregroundStyle(AppDesign.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 36)
@@ -55,7 +56,7 @@ struct WelcomeStepView: View {
                 // CTA
                 Button(action: onGetStarted) {
                     Text("Get Started")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(AppDesign.Font.headline)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 54)
@@ -68,7 +69,7 @@ struct WelcomeStepView: View {
                 .animation(.easeOut(duration: 0.4).delay(0.45), value: appeared)
             }
         }
-        .onAppear {
+        .task {
             if reduceMotion {
                 var transaction = Transaction(animation: nil)
                 transaction.disablesAnimations = true
@@ -78,4 +79,9 @@ struct WelcomeStepView: View {
             }
         }
     }
+}
+
+#Preview {
+    WelcomeStepView(onGetStarted: {})
+        .preferredColorScheme(.dark)
 }

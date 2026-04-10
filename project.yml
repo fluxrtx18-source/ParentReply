@@ -60,7 +60,7 @@ targets:
         excludes:
           - "**/*.md"
     resources:
-      - path: Configuration/StoreKit.storekit
+      - path: ParentReply/Resources/PrivacyInfo.xcprivacy
 
   # ── Unit Tests ────────────────────────────────────────────────────────────
   ParentReplyTests:

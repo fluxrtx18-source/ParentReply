@@ -31,8 +31,8 @@ actor AIParentService: MessageAnalyzing {
         // <message> or </message> tags (case-insensitive) so user content
         // cannot close the delimiter early or open a new one.
         let input = trimmed
-            .replacingOccurrences(of: "</message>", with: "< /message>", options: .caseInsensitive)
-            .replacingOccurrences(of: "<message>", with: "< message>", options: .caseInsensitive)
+            .replacing(/(?i)<\/message>/, with: "< /message>")
+            .replacing(/(?i)<message>/,   with: "< message>")
 
         let prompt = """
         You are an experienced school communication assistant who helps parents \
@@ -66,11 +66,19 @@ actor AIParentService: MessageAnalyzing {
         } catch let error as AnalysisError {
             throw error
         } catch {
-            let desc = String(describing: error)
+            // All errors from LanguageModelSession are model-layer errors.
+            // Check for known unavailability descriptions (case-insensitive) to
+            // give the clearest message; fall back to modelUnavailable for anything
+            // else rather than surfacing a raw system error string to the user.
+            let desc = String(describing: error).lowercased()
             if desc.contains("unavailable") || desc.contains("not supported") || desc.contains("not available") {
                 throw AnalysisError.modelUnavailable
             }
+            #if DEBUG
             throw error
+            #else
+            throw AnalysisError.modelUnavailable
+            #endif
         }
 
         let result = response.content

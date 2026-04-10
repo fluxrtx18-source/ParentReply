@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 /// Full-screen sheet that processes the screenshot and shows the results.
 struct AnalysisView: View {
@@ -17,13 +16,22 @@ struct AnalysisView: View {
         NavigationStack {
             ZStack {
                 AppDesign.Color.background.ignoresSafeArea()
-                content
+                AnalysisContentView(
+                    state: viewModel.state,
+                    analysis: viewModel.analysis,
+                    copiedTone: viewModel.copiedTone,
+                    isSubscribed: subscriptionManager.isSubscribed,
+                    onCopy: { viewModel.copyReply(for: $0) },
+                    onUpgrade: { showPaywall = true },
+                    onRetry: { viewModel.reset(); analysisTrigger.toggle() }
+                )
             }
+            .animation(AppDesign.Anim.standard, value: viewModel.state)
             .navigationTitle("ParentReply")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Close", action: dismiss.callAsFunction)
+                    Button("Close") { dismiss() }
                         .foregroundStyle(AppDesign.Color.textSecondary)
                 }
             }
@@ -32,39 +40,6 @@ struct AnalysisView: View {
             }
             .task(id: analysisTrigger) {
                 await startAnalysis()
-            }
-        }
-    }
-
-    // MARK: - Content switching
-
-    @ViewBuilder
-    private var content: some View {
-        switch viewModel.state {
-        case .idle:
-            EmptyView()
-
-        case .extractingText:
-            LoadingView(message: "Reading the school message...")
-
-        case .analyzing:
-            LoadingView(message: "Crafting your replies...")
-
-        case .complete:
-            if let analysis = viewModel.analysis {
-                AnalysisResultsView(
-                    analysis: analysis,
-                    copiedTone: viewModel.copiedTone,
-                    isSubscribed: subscriptionManager.isSubscribed,
-                    onCopy: { viewModel.copyReply(for: $0) },
-                    onUpgrade: { showPaywall = true }
-                )
-            }
-
-        case .failed(let message):
-            AnalysisErrorView(message: message) {
-                viewModel.reset()
-                analysisTrigger.toggle()
             }
         }
     }

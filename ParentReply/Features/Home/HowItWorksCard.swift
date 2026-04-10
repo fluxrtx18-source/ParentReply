@@ -20,3 +20,10 @@ struct HowItWorksCard: View {
         }
     }
 }
+
+#Preview {
+    HowItWorksCard()
+        .padding()
+        .background(AppDesign.Color.background)
+        .preferredColorScheme(.dark)
+}

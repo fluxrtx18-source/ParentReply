@@ -46,9 +46,13 @@ enum AppDesign {
         static let largeTitle = SwiftUI.Font.system(.largeTitle,  design: .rounded, weight: .bold)
         static let title      = SwiftUI.Font.system(.title,       design: .rounded, weight: .bold)
         static let title2     = SwiftUI.Font.system(.title2,      design: .rounded, weight: .semibold)
+        static let title3     = SwiftUI.Font.system(.title3,      design: .rounded, weight: .semibold)
         static let headline   = SwiftUI.Font.system(.headline,    design: .rounded)
         static let body       = SwiftUI.Font.system(.body,        design: .rounded)
         static let subhead    = SwiftUI.Font.system(.subheadline, design: .rounded)
+        static let footnote   = SwiftUI.Font.system(.footnote,    design: .rounded)
+        static let caption    = SwiftUI.Font.system(.caption,     design: .rounded)
+        static let caption2   = SwiftUI.Font.system(.caption2,    design: .rounded)
     }
 
     enum Anim {

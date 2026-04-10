@@ -19,3 +19,10 @@ struct HomeHeaderView: View {
         .padding(.top, AppDesign.Spacing.lg)
     }
 }
+
+#Preview {
+    HomeHeaderView()
+        .padding()
+        .background(AppDesign.Color.background)
+        .preferredColorScheme(.dark)
+}

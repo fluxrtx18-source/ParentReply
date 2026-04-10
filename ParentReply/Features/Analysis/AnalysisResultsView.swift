@@ -16,7 +16,7 @@ struct AnalysisResultsView: View {
                 if !PaywallGate.isSummaryLocked(isSubscribed: isSubscribed) {
                     SummaryCard(summary: analysis.situationSummary)
                 } else {
-                    lockedSummaryCard
+                    LockedSummaryCard(onUpgrade: onUpgrade)
                 }
 
                 Text("Choose your reply")
@@ -29,7 +29,7 @@ struct AnalysisResultsView: View {
                     let locked = PaywallGate.isLocked(tone: tone, isSubscribed: isSubscribed)
                     ReplyCardView(
                         tone: tone,
-                        replyText: analysis.reply(for: tone),
+                        replyText: locked ? "" : analysis.reply(for: tone),
                         isCopied: copiedTone == tone,
                         isRecommended: tone == analysis.recommendedTone,
                         isLocked: locked,
@@ -45,36 +45,4 @@ struct AnalysisResultsView: View {
         .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .bottom)))
     }
 
-    // MARK: - Locked summary teaser (D2)
-
-    private var lockedSummaryCard: some View {
-        ZStack {
-            SummaryCard(summary: analysis.situationSummary)
-                .blur(radius: 8)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-
-            Button(action: onUpgrade) {
-                VStack(spacing: AppDesign.Spacing.xs) {
-                    Image(systemName: "doc.text.magnifyingglass")
-                        .font(.title2)
-                        .foregroundStyle(AppDesign.Color.accent)
-
-                    Text("Situation summary")
-                        .font(AppDesign.Font.headline)
-                        .foregroundStyle(AppDesign.Color.textPrimary)
-
-                    Text("Understand what the school needs from you")
-                        .font(AppDesign.Font.subhead)
-                        .foregroundStyle(AppDesign.Color.textSecondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding(AppDesign.Spacing.md)
-                .background(.ultraThinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: AppDesign.Radius.md, style: .continuous))
-            }
-            .accessibilityLabel("Situation summary — upgrade to unlock")
-        }
-        .clipShape(RoundedRectangle(cornerRadius: AppDesign.Radius.md, style: .continuous))
-    }
 }

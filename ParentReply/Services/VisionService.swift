@@ -18,30 +18,26 @@ actor VisionService: TextExtracting {
             throw VisionError.invalidImage
         }
 
-        // Run synchronous Vision OCR on a non-cooperative thread to avoid
-        // starving the Swift concurrency thread pool with a blocking call.
-        let text: String = try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                do {
-                    let request = VNRecognizeTextRequest()
-                    request.revision = VNRecognizeTextRequest.currentRevision
-                    request.recognitionLevel = .accurate
+        // Run synchronous Vision OCR in a detached task so the blocking
+        // VNImageRequestHandler.perform() call does not occupy a cooperative
+        // thread. Task.detached is appropriate here: cgImage is Sendable and
+        // there is no shared mutable state inside the closure.
+        let text = try await Task.detached(priority: .userInitiated) {
+            let request = VNRecognizeTextRequest()
+            request.revision = VNRecognizeTextRequest.currentRevision
+            request.recognitionLevel = .accurate
 
-                    let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-                    try handler.perform([request])
+            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+            try handler.perform([request])
 
-                    let result = (request.results ?? [])
-                        .compactMap { $0.topCandidates(1).first?.string }
-                        .joined(separator: "\n")
+            return (request.results ?? [])
+                .compactMap { $0.topCandidates(1).first?.string }
+                .joined(separator: "\n")
+        }.value
 
-                    continuation.resume(returning: result)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw VisionError.noTextFound
         }
-
-        guard !text.isEmpty else { throw VisionError.noTextFound }
         return text
     }
 

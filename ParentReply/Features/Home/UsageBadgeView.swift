@@ -6,6 +6,7 @@ struct UsageBadgeView: View {
         HStack(spacing: AppDesign.Spacing.sm) {
             Image(systemName: "sparkles")
                 .foregroundStyle(AppDesign.Color.accent)
+                .accessibilityHidden(true)
 
             Text("\(PaywallGate.freeTone.displayName) tone always free · Upgrade for all \(ReplyTone.allCases.count) + insights")
                 .font(AppDesign.Font.subhead)
@@ -20,4 +21,11 @@ struct UsageBadgeView: View {
                 .strokeBorder(AppDesign.Color.border, lineWidth: 1)
         }
     }
+}
+
+#Preview {
+    UsageBadgeView()
+        .padding()
+        .background(AppDesign.Color.background)
+        .preferredColorScheme(.dark)
 }

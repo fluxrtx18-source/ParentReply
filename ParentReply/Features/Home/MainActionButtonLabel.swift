@@ -10,7 +10,7 @@ struct MainActionButtonLabel: View {
                     .tint(.white)
             } else {
                 Image(systemName: "photo.on.rectangle.angled")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(AppDesign.Font.headline)
                 Text("Choose Screenshot")
                     .font(AppDesign.Font.headline)
             }
@@ -21,4 +21,18 @@ struct MainActionButtonLabel: View {
         .background(AppDesign.Color.accentGradient)
         .clipShape(.rect(cornerRadius: AppDesign.Radius.md))
     }
+}
+
+#Preview("Idle") {
+    MainActionButtonLabel(isLoading: false)
+        .padding()
+        .background(AppDesign.Color.background)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Loading") {
+    MainActionButtonLabel(isLoading: true)
+        .padding()
+        .background(AppDesign.Color.background)
+        .preferredColorScheme(.dark)
 }

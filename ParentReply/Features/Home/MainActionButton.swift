@@ -9,6 +9,7 @@ struct MainActionButton: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var isLoading = false
     @State private var loadError: String?
+    @State private var showLoadError = false
 
     var body: some View {
         PhotosPicker(selection: $pickerItem, matching: .images) {
@@ -16,6 +17,8 @@ struct MainActionButton: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 56)
         }
+        .accessibilityLabel("Choose Screenshot")
+        .accessibilityValue(isLoading ? "Loading" : "")
         .overlay {
             MainActionButtonLabel(isLoading: isLoading)
                 .allowsHitTesting(false)
@@ -28,20 +31,19 @@ struct MainActionButton: View {
                 guard let data  = try await item.loadTransferable(type: Data.self),
                       let image = UIImage(data: data) else {
                     loadError = "The photo couldn't be read. Try choosing a different image."
+                    showLoadError = true
                     return
                 }
                 onImage(image)
             } catch {
                 loadError = "Couldn't load the photo from your library. Please try again."
+                showLoadError = true
             }
         }
-        .alert("Couldn't Load Photo", isPresented: .init(
-            get: { loadError != nil },
-            set: { if !$0 { loadError = nil } }
-        ), presenting: loadError) { _ in
+        .alert("Couldn't Load Photo", isPresented: $showLoadError) {
             Button("OK", role: .cancel) { loadError = nil }
-        } message: { error in
-            Text(error)
+        } message: {
+            Text(loadError ?? "")
         }
     }
 }

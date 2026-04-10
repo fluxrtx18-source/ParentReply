@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 @MainActor
 @Observable
@@ -74,6 +73,10 @@ final class AnalysisViewModel {
     // MARK: - Private
     @ObservationIgnored
     private var copyFeedbackTask: Task<Void, Never>?
+
+    deinit {
+        copyFeedbackTask?.cancel()
+    }
 
     // MARK: - Copy
 

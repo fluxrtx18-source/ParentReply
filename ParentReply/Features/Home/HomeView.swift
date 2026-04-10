@@ -5,6 +5,9 @@ struct HomeView: View {
     @Environment(SubscriptionManager.self) private var subscriptionManager
     @Environment(\.scenePhase)             private var scenePhase
 
+    private static let privacyURL = URL(string: "https://fluxrtx18-source.github.io/ParentReply/privacy")!
+    private static let termsURL   = URL(string: "https://fluxrtx18-source.github.io/ParentReply/terms")!
+
     @State private var selectedImage: IdentifiableImage?
     @State private var showPaywall = false
 
@@ -15,6 +18,9 @@ struct HomeView: View {
 
                 ScrollView {
                     VStack(spacing: AppDesign.Spacing.xl) {
+                        if subscriptionManager.hasBillingIssue {
+                            BillingIssueBanner()
+                        }
                         HomeHeaderView()
                         if !subscriptionManager.isSubscribed {
                             UsageBadgeView()
@@ -23,6 +29,14 @@ struct HomeView: View {
                         HomeActionSection(
                             onImage: { selectedImage = IdentifiableImage(image: $0) }
                         )
+                        HStack(spacing: 4) {
+                            Link("Privacy Policy", destination: Self.privacyURL)
+                            Text("·").foregroundStyle(AppDesign.Color.textSecondary)
+                            Link("Terms of Use", destination: Self.termsURL)
+                        }
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(AppDesign.Color.textSecondary)
+
                         Spacer(minLength: AppDesign.Spacing.xxl)
                     }
                     .padding(AppDesign.Spacing.md)
@@ -45,11 +59,18 @@ struct HomeView: View {
             .sheet(isPresented: $showPaywall) {
                 PaywallView()
             }
-            .onChange(of: scenePhase) {
-                guard scenePhase == .active else { return }
+            .onChange(of: scenePhase) { _, newPhase in
+                guard newPhase == .active else { return }
                 usageTracker.refresh()
                 Task { await subscriptionManager.refresh() }
             }
         }
     }
+}
+
+#Preview {
+    HomeView()
+        .environment(UsageTracker())
+        .environment(SubscriptionManager())
+        .preferredColorScheme(.dark)
 }

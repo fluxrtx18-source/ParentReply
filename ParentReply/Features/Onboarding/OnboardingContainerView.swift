@@ -5,6 +5,7 @@ import SwiftUI
 /// Writes `onboardingComplete = true` to AppStorage when the user finishes.
 struct OnboardingContainerView: View {
     @AppStorage(UserDefaultsKeys.onboardingComplete) private var onboardingComplete = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var step: OnboardingStep = .welcome
 
@@ -69,22 +70,24 @@ struct OnboardingContainerView: View {
     }
 
     private var slideTransition: AnyTransition {
-        .asymmetric(
-            insertion: .move(edge: .trailing),
-            removal: .move(edge: .leading)
-        )
+        reduceMotion
+            ? .opacity
+            : .asymmetric(
+                insertion: .move(edge: .trailing),
+                removal: .move(edge: .leading)
+              )
     }
 
     // MARK: - Navigation
 
     private func advance(to next: OnboardingStep) {
-        withAnimation(.easeInOut(duration: 0.38)) {
+        withAnimation(reduceMotion ? .easeInOut(duration: 0.2) : .easeInOut(duration: 0.38)) {
             step = next
         }
     }
 
     private func retreat(to prev: OnboardingStep) {
-        withAnimation(.easeInOut(duration: 0.32)) {
+        withAnimation(reduceMotion ? .easeInOut(duration: 0.2) : .easeInOut(duration: 0.32)) {
             step = prev
         }
     }

@@ -25,3 +25,10 @@ struct SummaryCard: View {
         }
     }
 }
+
+#Preview {
+    SummaryCard(summary: "Ms. Thompson has flagged that Jake had difficulty staying focused during today's lesson and was redirected several times. She is looking for a collaborative response from the parent.")
+        .padding()
+        .background(AppDesign.Color.background)
+        .preferredColorScheme(.dark)
+}

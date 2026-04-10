@@ -39,5 +39,7 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>ParentReply needs access to your photo library so you can select screenshots of school messages to analyse.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

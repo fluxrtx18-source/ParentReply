@@ -15,3 +15,12 @@ struct AnalysisErrorView: View {
         }
     }
 }
+
+#Preview {
+    AnalysisErrorView(
+        message: "No text was found in the screenshot. Make sure it contains a readable school message.",
+        onRetry: {}
+    )
+    .background(AppDesign.Color.background)
+    .preferredColorScheme(.dark)
+}

@@ -1,4 +1,5 @@
 import SwiftUI
+import Accessibility
 
 /// Screen 6 — value delivery / viral moment.
 /// Processing animation reveals the "your reply is ready" output.
@@ -43,7 +44,8 @@ struct ValueDeliveryStepView: View {
                 appeared = true
                 try? await Task.sleep(for: .seconds(1.8))
                 guard !Task.isCancelled else { return }
-                withAnimation { phase = .revealed }
+                withAnimation(.easeInOut(duration: 0.4)) { phase = .revealed }
+                AccessibilityNotification.Announcement("Your replies are ready").post()
             }
         }
     }
@@ -65,10 +67,10 @@ struct ValueDeliveryStepView: View {
 
             VStack(spacing: 8) {
                 Text("Crafting your replies...")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.system(.title3, design: .rounded, weight: .bold))
                     .foregroundStyle(AppDesign.Color.textPrimary)
                 Text("Finding the right words for every tone")
-                    .font(.system(size: 15, design: .rounded))
+                    .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(AppDesign.Color.textSecondary)
             }
 
@@ -81,19 +83,19 @@ struct ValueDeliveryStepView: View {
 
     private var revealedView: some View {
         ZStack(alignment: .bottom) {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack(spacing: 0) {
                     Spacer().frame(height: 52)
 
                     VStack(spacing: 10) {
                         Text("Your replies are ready!")
-                            .font(.system(size: 26, weight: .black, design: .rounded))
+                            .font(.system(.title, design: .rounded, weight: .black))
                             .foregroundStyle(AppDesign.Color.textPrimary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 28)
 
                         Text("ParentReply crafted \(replies.count) tone options for you.")
-                            .font(.system(size: 15, design: .rounded))
+                            .font(.system(.subheadline, design: .rounded))
                             .foregroundStyle(AppDesign.Color.textSecondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 36)
@@ -103,7 +105,7 @@ struct ValueDeliveryStepView: View {
 
                     // Reply preview
                     VStack(spacing: 12) {
-                        ForEach(Array(replies.enumerated()), id: \.offset) { idx, reply in
+                        ForEach(replies.enumerated(), id: \.offset) { idx, reply in
                             replyPreviewRow(reply: reply, index: idx + 1)
                                 .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
@@ -117,6 +119,7 @@ struct ValueDeliveryStepView: View {
                     Spacer().frame(height: 120)
                 }
             }
+            .scrollIndicators(.hidden)
 
             // CTA
             VStack(spacing: 0) {
@@ -153,14 +156,15 @@ struct ValueDeliveryStepView: View {
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(reply.tone.color)
             }
+            .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(reply.tone.displayName.uppercased())
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .font(.system(.caption2, design: .rounded, weight: .semibold))
                     .tracking(0.8)
                     .foregroundStyle(reply.tone.color)
                 Text(reply.text)
-                    .font(.system(size: 14, design: .rounded))
+                    .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(AppDesign.Color.textPrimary)
                     .lineLimit(2)
             }
@@ -170,6 +174,7 @@ struct ValueDeliveryStepView: View {
             Image(systemName: "doc.on.doc")
                 .font(.system(size: 12))
                 .foregroundStyle(AppDesign.Color.textSecondary)
+                .accessibilityHidden(true)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -178,10 +183,10 @@ struct ValueDeliveryStepView: View {
                 .fill(AppDesign.Color.surface)
                 .shadow(color: .black.opacity(0.12), radius: 6, y: 2)
         )
-        .overlay(
+        .overlay {
             RoundedRectangle(cornerRadius: 14)
                 .strokeBorder(AppDesign.Color.border, lineWidth: 1)
-        )
+        }
     }
 
     // MARK: - Stats strip
@@ -189,9 +194,9 @@ struct ValueDeliveryStepView: View {
     private var statsStrip: some View {
         HStack(spacing: 0) {
             StatPill(value: "6", label: "Tones")
-            Divider().frame(height: 32).overlay(AppDesign.Color.border)
+            Divider().frame(height: 32).overlay { AppDesign.Color.border }
             StatPill(value: "1", label: "Message")
-            Divider().frame(height: 32).overlay(AppDesign.Color.border)
+            Divider().frame(height: 32).overlay { AppDesign.Color.border }
             StatPill(value: "0s", label: "Wait time")
         }
         .padding(.horizontal, 28)
@@ -206,19 +211,4 @@ struct ValueDeliveryStepView: View {
 
 // MARK: - Stat Pill
 
-private struct StatPill: View {
-    let value: String
-    let label: String
-
-    var body: some View {
-        VStack(spacing: 2) {
-            Text(value)
-                .font(.system(size: 18, weight: .black, design: .rounded))
-                .foregroundStyle(AppDesign.Color.accent)
-            Text(label)
-                .font(.system(size: 12, design: .rounded))
-                .foregroundStyle(AppDesign.Color.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
+// StatPill extracted to StatPill.swift

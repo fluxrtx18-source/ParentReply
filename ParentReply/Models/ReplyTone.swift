@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum ReplyTone: String, CaseIterable, Identifiable {
+enum ReplyTone: String, CaseIterable, Identifiable, Hashable {
     case grateful   = "Grateful"
     case concerned  = "Concerned"
     case supportive = "Supportive"
@@ -25,7 +25,7 @@ enum ReplyTone: String, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
-        case .grateful:   Color(red: 0.05, green: 0.58, blue: 0.53)  // teal
+        case .grateful:   AppDesign.Color.accent
         case .concerned:  Color(red: 0.91, green: 0.49, blue: 0.15)  // amber
         case .supportive: Color(red: 0.29, green: 0.56, blue: 0.89)  // sky blue
         case .diplomatic: Color(red: 0.61, green: 0.35, blue: 0.71)  // purple

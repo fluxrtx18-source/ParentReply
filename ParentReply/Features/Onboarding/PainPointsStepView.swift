@@ -24,7 +24,7 @@ struct PainPointsStepView: View {
 
                 // Headline
                 Text(OnboardingPainPoints.headline)
-                    .font(.system(size: 24, weight: .black, design: .rounded))
+                    .font(.system(.title2, design: .rounded, weight: .black))
                     .foregroundStyle(AppDesign.Color.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 24)
@@ -35,7 +35,7 @@ struct PainPointsStepView: View {
                 Spacer().frame(height: 8)
 
                 Text("Pick all that apply")
-                    .font(.system(size: 13, design: .rounded))
+                    .font(.system(.footnote, design: .rounded))
                     .foregroundStyle(AppDesign.Color.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 28)
@@ -45,9 +45,9 @@ struct PainPointsStepView: View {
                 Spacer().frame(height: 16)
 
                 // Option list
-                ScrollView(showsIndicators: false) {
+                ScrollView {
                     VStack(spacing: 10) {
-                        ForEach(Array(OnboardingPainPoints.options.enumerated()), id: \.element) { idx, option in
+                        ForEach(OnboardingPainPoints.options.enumerated(), id: \.element) { idx, option in
                             PainPointCard(
                                 text: option,
                                 isSelected: selected.contains(option)
@@ -71,6 +71,7 @@ struct PainPointsStepView: View {
                     .padding(.horizontal, 24)
                     .padding(.bottom, 110)
                 }
+                .scrollIndicators(.hidden)
             }
 
             // Fixed CTA
@@ -80,7 +81,7 @@ struct PainPointsStepView: View {
                     onContinue(Array(selected))
                 } label: {
                     Text("Continue")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(.body, design: .rounded, weight: .semibold))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 54)
@@ -92,7 +93,7 @@ struct PainPointsStepView: View {
                 .background(AppDesign.Color.background)
             }
         }
-        .onAppear {
+        .task {
             if reduceMotion {
                 var transaction = Transaction(animation: nil)
                 transaction.disablesAnimations = true
@@ -112,7 +113,8 @@ struct PainPointsStepView: View {
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(AppDesign.Color.textPrimary)
             }
-            .frame(width: 32)
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
             .accessibilityLabel("Go back")
             Spacer()
         }
@@ -122,54 +124,4 @@ struct PainPointsStepView: View {
 
 // MARK: - Pain Point Card
 
-private struct PainPointCard: View {
-    let text: String
-    let isSelected: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 12) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(isSelected ? AppDesign.Color.accent : Color.clear)
-                        .frame(width: 22, height: 22)
-                    RoundedRectangle(cornerRadius: 6)
-                        .strokeBorder(
-                            isSelected ? AppDesign.Color.accent : AppDesign.Color.border,
-                            lineWidth: isSelected ? 0 : 1.5
-                        )
-                        .frame(width: 22, height: 22)
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 12, weight: .black))
-                            .foregroundStyle(.white)
-                            .transition(.scale.combined(with: .opacity))
-                    }
-                }
-                .animation(.spring(response: 0.2, dampingFraction: 0.8), value: isSelected)
-
-                Text(text)
-                    .font(.system(size: 15, weight: isSelected ? .semibold : .regular, design: .rounded))
-                    .foregroundStyle(isSelected ? AppDesign.Color.accent : AppDesign.Color.textPrimary)
-                    .multilineTextAlignment(.leading)
-
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 13)
-                    .fill(isSelected ? AppDesign.Color.accent.opacity(0.07) : AppDesign.Color.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 13)
-                    .strokeBorder(
-                        isSelected ? AppDesign.Color.accent : AppDesign.Color.border,
-                        lineWidth: isSelected ? 1.8 : 1
-                    )
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
+// PainPointCard extracted to PainPointCard.swift

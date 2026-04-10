@@ -1,4 +1,5 @@
 import SwiftUI
+import Accessibility
 
 /// Screen 5 — interactive demo.
 /// Shows a simulated school message being "analysed" with reply tones appearing one by one.
@@ -21,19 +22,19 @@ struct AppDemoStepView: View {
         ZStack(alignment: .bottom) {
             AppDesign.Color.background.ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack(spacing: 0) {
                     Spacer().frame(height: 52)
 
                     // Header
                     VStack(spacing: 8) {
                         Text("See it in action")
-                            .font(.system(size: 24, weight: .black, design: .rounded))
+                            .font(.system(.title2, design: .rounded, weight: .black))
                             .foregroundStyle(AppDesign.Color.textPrimary)
                         Text(phase == .reading
                              ? "Reading the teacher's message..."
                              : "Tap a reply to preview it")
-                            .font(.system(size: 15, design: .rounded))
+                            .font(.system(.subheadline, design: .rounded))
                             .foregroundStyle(AppDesign.Color.textSecondary)
                     }
                     .opacity(appeared ? 1 : 0)
@@ -52,7 +53,7 @@ struct AppDemoStepView: View {
                     // Reply cards (appear one by one)
                     if phase == .repliesReady {
                         VStack(spacing: 12) {
-                            ForEach(Array(replies.enumerated()), id: \.offset) { idx, reply in
+                            ForEach(replies.enumerated(), id: \.offset) { idx, reply in
                                 if idx < visibleReplies {
                                     demoReplyCard(reply: reply, index: idx)
                                         .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -65,6 +66,7 @@ struct AppDemoStepView: View {
                     Spacer().frame(height: 120)
                 }
             }
+            .scrollIndicators(.hidden)
 
             // CTA — only after all replies visible
             if visibleReplies >= replies.count {
@@ -86,8 +88,6 @@ struct AppDemoStepView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .animation(.easeInOut(duration: 0.4), value: visibleReplies)
-        .animation(.easeInOut(duration: 0.4), value: phase)
         .task {
             if reduceMotion {
                 var transaction = Transaction(animation: nil)
@@ -102,16 +102,18 @@ struct AppDemoStepView: View {
                 // Simulate "reading" phase
                 try? await Task.sleep(for: .seconds(1.5))
                 guard !Task.isCancelled else { return }
-                withAnimation { phase = .repliesReady }
+                withAnimation(.easeInOut(duration: 0.35)) { phase = .repliesReady }
 
-                // Reveal replies one by one
-                for i in 1...replies.count {
+                // Reveal replies one by one (guard avoids invalid range if array is ever empty)
+                for i in replies.indices {
                     try? await Task.sleep(for: .seconds(0.5))
                     guard !Task.isCancelled else { return }
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                        visibleReplies = i
+                        visibleReplies = i + 1
                     }
                 }
+                // Notify VoiceOver that the CTA button has appeared
+                AccessibilityNotification.LayoutChanged().post()
             }
         }
     }
@@ -126,22 +128,22 @@ struct AppDemoStepView: View {
                     .frame(width: 36, height: 36)
                     .overlay {
                         Text(String(demo.from.prefix(1)))
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
                             .foregroundStyle(AppDesign.Color.accent)
                     }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(demo.from)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
                         .foregroundStyle(AppDesign.Color.textPrimary)
                     Text(demo.subject)
-                        .font(.system(size: 12, design: .rounded))
+                        .font(.system(.caption, design: .rounded))
                         .foregroundStyle(AppDesign.Color.textSecondary)
                 }
             }
 
             Text(demo.body)
-                .font(.system(size: 14, design: .rounded))
+                .font(.system(.subheadline, design: .rounded))
                 .foregroundStyle(AppDesign.Color.textPrimary.opacity(0.85))
                 .lineSpacing(4)
         }
@@ -150,10 +152,10 @@ struct AppDemoStepView: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(AppDesign.Color.surface)
         )
-        .overlay(
+        .overlay {
             RoundedRectangle(cornerRadius: 16)
                 .strokeBorder(AppDesign.Color.border, lineWidth: 1)
-        )
+        }
     }
 
     // MARK: - Demo Reply Card
@@ -164,12 +166,13 @@ struct AppDemoStepView: View {
                 selectedReply = (selectedReply == index) ? nil : index
             }
         } label: {
+
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: reply.tone.icon)
                         .font(.system(size: 12))
                     Text(reply.tone.displayName.uppercased())
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .font(.system(.caption2, design: .rounded, weight: .bold))
                         .tracking(0.5)
                 }
                 .foregroundStyle(reply.tone.color)
@@ -178,7 +181,7 @@ struct AppDemoStepView: View {
                 .background(reply.tone.color.opacity(0.12), in: Capsule())
 
                 Text(reply.text)
-                    .font(.system(size: 14, design: .rounded))
+                    .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(AppDesign.Color.textPrimary.opacity(0.9))
                     .lineSpacing(3)
                     .lineLimit(selectedReply == index ? nil : 2)
@@ -190,15 +193,17 @@ struct AppDemoStepView: View {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(AppDesign.Color.surface)
             )
-            .overlay(
+            .overlay {
                 RoundedRectangle(cornerRadius: 14)
                     .strokeBorder(
                         selectedReply == index ? reply.tone.color : AppDesign.Color.border,
                         lineWidth: selectedReply == index ? 1.5 : 1
                     )
-            )
+            }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("\(reply.tone.displayName) reply: \(reply.text)")
+        .accessibilityHint(selectedReply == index ? "Double-tap to collapse" : "Double-tap to expand")
     }
 
 }
